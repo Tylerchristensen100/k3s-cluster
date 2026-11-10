@@ -1,0 +1,12 @@
+# Cluster credentials and keys - never commit
+kubeconfig*
+*.kubeconfig
+k3s.yaml
+*.key
+*.pem
+*.crt
+*.age
+.env
+secrets/
+*.secret.yaml
+!*.sealed.yaml

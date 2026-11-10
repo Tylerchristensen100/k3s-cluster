@@ -1,0 +1,20 @@
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  kubeconform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kubeconform
+        run: |
+          curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz
+      - name: Validate manifests
+        # CRD-backed kinds (cert-manager, Fleet, HelmChartConfig) have no bundled schema, so they are skipped.
+        run: |
+          find apps infrastructure fleet -name '*.yaml' ! -name fleet.yaml -print0 \
+            | xargs -0 ./kubeconform -strict -summary -ignore-missing-schemas

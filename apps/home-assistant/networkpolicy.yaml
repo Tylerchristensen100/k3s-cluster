@@ -1,0 +1,47 @@
+# Enforced by k3s's embedded network policy controller.
+# NOTE: has no effect if `hostNetwork: true` is enabled in deployment.yaml.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: home-assistant
+  namespace: home-assistant
+spec:
+  podSelector:
+    matchLabels:
+      app: home-assistant
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Only Traefik may reach Home Assistant.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8123
+  egress:
+    # DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # LAN devices and the internet, but not other pods/services in the cluster.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.42.0.0/16 # k3s pod CIDR
+              - 10.43.0.0/16 # k3s service CIDR

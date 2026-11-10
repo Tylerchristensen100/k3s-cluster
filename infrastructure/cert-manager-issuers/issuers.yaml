@@ -1,0 +1,33 @@
+# Requires cert-manager to already be installed (Rancher normally installs it).
+# Chain: selfsigned-bootstrap -> k3s-node-ca (CA cert) -> k3s-node-ca-issuer (signs app certs)
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-bootstrap
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: k3s-node-ca
+  namespace: cert-manager # cert-manager's cluster resource namespace
+spec:
+  isCA: true
+  commonName: k3s-node-ca
+  secretName: k3s-node-ca-secret
+  duration: 87600h # 10 years
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: selfsigned-bootstrap
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: k3s-node-ca-issuer
+spec:
+  ca:
+    secretName: k3s-node-ca-secret

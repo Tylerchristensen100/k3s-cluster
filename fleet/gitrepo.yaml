@@ -1,0 +1,14 @@
+# Bootstrap resource: apply ONCE by hand (kubectl apply -f fleet/gitrepo.yaml),
+# or recreate it in Rancher > Continuous Delivery > Git Repos.
+# It lives outside `paths` so Fleet doesn't try to manage itself.
+apiVersion: fleet.cattle.io/v1alpha1
+kind: GitRepo
+metadata:
+  name: k3s-cluster
+  namespace: fleet-local # single-node/local cluster workspace
+spec:
+  repo: https://github.com/Tylerchristensen100/k3s-cluster
+  branch: main
+  paths:
+    - infrastructure
+    - apps
