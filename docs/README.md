@@ -17,3 +17,4 @@
 | Home Assistant | `https://home-assistant.k3s-node.home` | `apps/home-assistant` |
 | Homepage (dashboard) | `https://homepage.k3s-node.home` | `apps/homepage` |
 | Uptime Kuma (monitoring) | `https://uptime-kuma.k3s-node.home` | `apps/uptime-kuma` |
+| Sealed Secrets web UI (seal-only) | `https://sealed-secrets-web.k3s-node.home` | `apps/sealed-secrets-web` |

@@ -10,3 +10,5 @@ k3s.yaml
 secrets/
 *.secret.yaml
 !*.sealed.yaml
+# Sealed Secrets PUBLIC certificate is safe to commit (encrypt-only); the private key never leaves the cluster
+!certs/sealed-secrets-pub.pem

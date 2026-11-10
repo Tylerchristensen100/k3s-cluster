@@ -35,3 +35,4 @@ GitOps repo for a **single-node k3s cluster** managed through **Rancher** (Fleet
 ## Placeholders to fill in
 
 - Timezone in `apps/home-assistant/deployment.yaml`.
+- `certs/sealed-secrets-pub.pem` (export per `docs/secrets.md`) before merging the sealed-secrets-web PR.
