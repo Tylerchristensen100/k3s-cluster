@@ -26,6 +26,10 @@ data:
             href: https://uptime-kuma.k3s-node.home
             description: Service monitoring
             icon: uptime-kuma.svg
+        - Sealed Secrets:
+            href: https://sealed-secrets-web.k3s-node.home
+            description: Encrypt secrets for git
+            icon: mdi-lock
   bookmarks.yaml: |
     - Repo:
         - GitHub:

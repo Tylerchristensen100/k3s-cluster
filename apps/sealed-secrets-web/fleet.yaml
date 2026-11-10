@@ -1,0 +1,31 @@
+defaultNamespace: sealed-secrets-web
+
+dependsOn:
+  - name: github-infrastructure-sealed-secrets
+  - name: github-infrastructure-cert-manager-issuers
+
+helm:
+  repo: https://charts.bakito.net
+  chart: sealed-secrets-web
+  version: "FILL_ME_IN" # TODO: pin latest chart version (helm search repo bakito/sealed-secrets-web); Renovate bumps it after
+  releaseName: sealed-secrets-web
+  values:
+    # Seal-only: don't list/load existing Secrets from the cluster.
+    disableLoadSecrets: true
+    sealedSecrets:
+      namespace: kube-system
+      serviceName: sealed-secrets-controller
+    ingress:
+      enabled: true
+      className: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: k3s-node-ca-issuer
+      hosts:
+        - host: sealed-secrets-web.k3s-node.home
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: sealed-secrets-web-tls
+          hosts:
+            - sealed-secrets-web.k3s-node.home
