@@ -1,6 +1,8 @@
 # Customises the Traefik bundled with k3s (see https://docs.k3s.io/helm#customizing-packaged-components-with-helmchartconfig).
-# Redirects all HTTP (:80) traffic to HTTPS. Uses the Traefik v3 chart syntax;
-# on older k3s (Traefik v2) use `ports.web.redirectTo.port: websecure` instead.
+# Redirects all HTTP (:80) traffic to HTTPS. Uses the current Traefik chart syntax
+# (`ports.web.http.redirections`). The older `ports.web.redirections` key is silently
+# ignored by recent charts. Verify with:
+#   kubectl -n kube-system get deploy traefik -o jsonpath='{..args}' | tr ',' '\n' | grep redirections
 apiVersion: helm.cattle.io/v1
 kind: HelmChartConfig
 metadata:
@@ -10,8 +12,9 @@ spec:
   valuesContent: |-
     ports:
       web:
-        redirections:
-          entryPoint:
-            to: websecure
-            scheme: https
-            permanent: true
+        http:
+          redirections:
+            entryPoint:
+              to: websecure
+              scheme: https
+              permanent: true

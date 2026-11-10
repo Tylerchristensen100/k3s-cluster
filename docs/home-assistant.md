@@ -10,23 +10,22 @@ Manifests: [`apps/home-assistant/`](../apps/home-assistant). Namespace `home-ass
 
 ## Required: trust the reverse proxy
 
-Home Assistant rejects proxied requests (400 Bad Request) until it trusts Traefik. After first start, edit `/config/configuration.yaml` on the volume:
+Home Assistant rejects proxied requests (400 Bad Request, log: "not set-up for reverse proxies") until it trusts Traefik.
 
-```yaml
-http:
-  use_x_forwarded_for: true
-  trusted_proxies:
-    - 10.42.0.0/16   # k3s default pod CIDR
-```
-
-Edit it in place:
+**Do not use `configuration.yaml` for this.** Since ~2026.8 the `http:` settings live in `/config/.storage/http` (Settings → Network). The YAML block is migrated only once, on the first boot that has one. If the first boot had none, YAML is ignored forever. Because the UI is behind the same 400, set it in the store directly (the file has `stable` and `pending` slots; edit `stable`):
 
 ```sh
-kubectl -n home-assistant exec -it deploy/home-assistant -- vi /config/configuration.yaml
+kubectl -n home-assistant exec deploy/home-assistant -- python3 -c '
+import json
+p="/config/.storage/http"
+d=json.load(open(p))
+d["data"]["stable"]["use_x_forwarded_for"]=True
+d["data"]["stable"]["trusted_proxies"]=["10.42.0.0/16"]  # k3s pod CIDR; NetworkPolicy already limits callers to Traefik
+json.dump(d,open(p,"w"),indent=2)'
 kubectl -n home-assistant rollout restart deploy/home-assistant
 ```
 
-Then open `https://home-assistant.k3s-node.home` and complete onboarding.
+Afterwards the setting is visible and editable under Settings → Network. Then open `https://home-assistant.k3s-node.home` and complete onboarding.
 
 ## Device discovery
 
