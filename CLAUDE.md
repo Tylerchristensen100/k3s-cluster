@@ -35,4 +35,4 @@ GitOps repo for a **single-node k3s cluster** managed through **Rancher** (Fleet
 ## Placeholders to fill in
 
 - Timezone in `apps/home-assistant/deployment.yaml`.
-- Chart version in `apps/sealed-secrets-web/fleet.yaml` (`FILL_ME_IN`) and `certs/sealed-secrets-pub.pem` (export per `docs/secrets.md`) before pushing.
+- `certs/sealed-secrets-pub.pem` (export per `docs/secrets.md`) before merging the sealed-secrets-web PR.

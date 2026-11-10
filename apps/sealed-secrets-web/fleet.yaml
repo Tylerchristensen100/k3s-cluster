@@ -7,7 +7,7 @@ dependsOn:
 helm:
   repo: https://charts.bakito.net
   chart: sealed-secrets-web
-  version: "3.3.2" # TODO: pin latest chart version (helm search repo bakito/sealed-secrets-web); Renovate bumps it after
+  version: "3.3.2" # Renovate proposes bumps
   releaseName: sealed-secrets-web
   values:
     # Seal-only: don't list/load existing Secrets from the cluster.
