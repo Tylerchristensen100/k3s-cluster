@@ -16,7 +16,7 @@ spec:
   isCA: true
   commonName: k3s-node-ca
   secretName: k3s-node-ca-secret
-  duration: 87600h # 10 years
+  duration: 87600h0m0s # 10 years; full form avoids Fleet drift (cert-manager normalises "87600h")
   privateKey:
     algorithm: ECDSA
     size: 256

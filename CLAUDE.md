@@ -18,7 +18,7 @@ GitOps repo for a **single-node k3s cluster** managed through **Rancher** (Fleet
 - TLS: cert-manager (installed by Rancher, not managed here) with a self-signed internal CA. Issuers live in `infrastructure/cert-manager-issuers/`; Ingresses use `cert-manager.io/cluster-issuer: k3s-node-ca-issuer`.
 - Persistent data uses the `local-path` StorageClass (data lives on the node at `/var/lib/rancher/k3s/storage`).
 - Pin image tags (never `latest`/`stable`); Renovate proposes bumps.
-- Each app dir has a `fleet.yaml` (`defaultNamespace`, `dependsOn` for ordering). Bundle names are `k3s-cluster-<path with dashes>`.
+- Each app dir has a `fleet.yaml` (`defaultNamespace`, `dependsOn` for ordering). The GitRepo is named `github`, so bundle names are `github-<path with dashes>`. Write durations/fields in cert-manager's normalised form to avoid Fleet drift.
 - No secrets in git; see `docs/secrets.md`. Never commit kubeconfigs or keys.
 - No backups are configured yet; take an HA backup before upgrades.
 - CI runs kubeconform; new CRD-backed kinds are skipped by `-ignore-missing-schemas`.

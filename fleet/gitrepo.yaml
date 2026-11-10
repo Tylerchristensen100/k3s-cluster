@@ -4,7 +4,7 @@
 apiVersion: fleet.cattle.io/v1alpha1
 kind: GitRepo
 metadata:
-  name: k3s-cluster
+  name: github # matches the existing GitRepo in Rancher; bundle names derive from it
   namespace: fleet-local # single-node/local cluster workspace
 spec:
   repo: https://github.com/Tylerchristensen100/k3s-cluster

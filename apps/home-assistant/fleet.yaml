@@ -3,4 +3,4 @@ defaultNamespace: home-assistant
 # Wait for the cert issuers so the Ingress certificate can be issued on first sync.
 # Bundle name = <GitRepo name>-<path with / replaced by ->. Verify in Rancher > Continuous Delivery > Bundles.
 dependsOn:
-  - name: k3s-cluster-infrastructure-cert-manager-issuers
+  - name: github-infrastructure-cert-manager-issuers
