@@ -8,7 +8,8 @@ Rancher (Fleet) ──► k3s single node
                       ├─ Traefik (ingress, :80/:443)  ── routes by Host header
                       ├─ cert-manager (self-signed CA) ── TLS certs for Ingresses
                       ├─ local-path provisioner       ── PVCs on node disk
-                      └─ apps: nginx test, home-assistant, ...
+                      ├─ sealed-secrets controller    ── decrypts *.sealed.yaml from Git
+                      └─ apps: home-assistant, homepage, uptime-kuma
 ```
 
 ## Components

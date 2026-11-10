@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage
+  namespace: homepage
+  labels:
+    app: homepage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homepage
+  template:
+    metadata:
+      labels:
+        app: homepage
+    spec:
+      enableServiceLinks: false # avoids env var collisions with Homepage's own settings
+      containers:
+        - name: homepage
+          image: ghcr.io/gethomepage/homepage:v2.7.0
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              value: homepage.k3s-node.home
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+            - name: logs # Homepage writes logs under the config dir; the ConfigMap mount is read-only
+              mountPath: /app/config/logs
+          readinessProbe:
+            httpGet:
+              path: /api/healthcheck
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/healthcheck
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+      volumes:
+        - name: config
+          configMap:
+            name: homepage
+        - name: logs
+          emptyDir: {}

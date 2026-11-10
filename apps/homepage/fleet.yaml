@@ -1,0 +1,4 @@
+defaultNamespace: homepage
+
+dependsOn:
+  - name: github-infrastructure-cert-manager-issuers

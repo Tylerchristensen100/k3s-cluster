@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: defaults
+  namespace: homepage
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 25m
+        memory: 64Mi
+      default:
+        cpu: 250m
+        memory: 256Mi
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: quota
+  namespace: homepage
+spec:
+  hard:
+    requests.cpu: 500m
+    requests.memory: 512Mi
+    limits.cpu: "1"
+    limits.memory: 1Gi
+    persistentvolumeclaims: "0"

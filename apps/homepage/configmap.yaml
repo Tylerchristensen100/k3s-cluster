@@ -1,0 +1,40 @@
+# Homepage config. Edit here and push; the pod picks it up on restart
+# (kubectl -n homepage rollout restart deploy/homepage). Docs: https://gethomepage.dev
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage
+  namespace: homepage
+data:
+  settings.yaml: |
+    title: k3s-node
+    headerStyle: clean
+    theme: dark
+    color: slate
+  services.yaml: |
+    - Home:
+        - Home Assistant:
+            href: https://home-assistant.k3s-node.home
+            description: Home automation
+            icon: home-assistant.svg
+    - Infrastructure:
+        - Rancher:
+            href: https://k3s-node.home
+            description: Cluster management
+            icon: rancher.svg
+        - Uptime Kuma:
+            href: https://uptime-kuma.k3s-node.home
+            description: Service monitoring
+            icon: uptime-kuma.svg
+  bookmarks.yaml: |
+    - Repo:
+        - GitHub:
+            - href: https://github.com/Tylerchristensen100/k3s-cluster
+              icon: github.svg
+  widgets.yaml: |
+    - resources:
+        cpu: true
+        memory: true
+        disk: /
+  docker.yaml: ""
+  kubernetes.yaml: ""

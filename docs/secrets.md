@@ -10,7 +10,7 @@ No secrets exist yet, and none may be committed in plain text (`.gitignore` bloc
 | **Sealed Secrets** | Encrypt with `kubeseal`, commit the `*.sealed.yaml`; the in-cluster controller decrypts. Good fit for Fleet. |
 | **SOPS + age** | Encrypt files in git; needs a decryption step Fleet doesn't do natively. |
 
-Recommendation: **Sealed Secrets**. Back up its controller key, or sealed files become unrecoverable after a rebuild.
+**Chosen: Sealed Secrets**, installed by `infrastructure/sealed-secrets` (Helm chart via Fleet, controller `sealed-secrets-controller` in `kube-system`). Usage is in [runbook.md](runbook.md#sealed-secrets). Back up the controller key, or sealed files become unrecoverable after a rebuild.
 
 ## Existing secrets (managed outside git)
 

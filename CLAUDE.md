@@ -19,7 +19,10 @@ GitOps repo for a **single-node k3s cluster** managed through **Rancher** (Fleet
 - Persistent data uses the `local-path` StorageClass (data lives on the node at `/var/lib/rancher/k3s/storage`).
 - Pin image tags (never `latest`/`stable`); Renovate proposes bumps.
 - Each app dir has a `fleet.yaml` (`defaultNamespace`, `dependsOn` for ordering). The GitRepo is named `github`, so bundle names are `github-<path with dashes>`. Write durations/fields in cert-manager's normalised form to avoid Fleet drift.
-- No secrets in git; see `docs/secrets.md`. Never commit kubeconfigs or keys.
+- No secrets in git; encrypt with Sealed Secrets (`*.sealed.yaml`, see `docs/secrets.md`). Never commit kubeconfigs or keys.
+- New apps: copy `apps/uptime-kuma` (it has namespace, LimitRange/ResourceQuota, NetworkPolicy, TLS ingress, `fleet.yaml` with `dependsOn` the issuers). Add the app to `apps/homepage/configmap.yaml` and `docs/README.md`.
+- `kubectl` is not available to Claude on this machine for the real cluster; read-only checks go over SSH (`k3s-node@192.168.0.246`, `export KUBECONFIG=~/.kube/config`). Cluster writes are done by the user.
+- Known gotchas (Fleet bundle naming, Traefik chart keys, HA `.storage/http`): `docs/runbook.md`.
 - No backups are configured yet; take an HA backup before upgrades.
 - CI runs kubeconform; new CRD-backed kinds are skipped by `-ignore-missing-schemas`.
 
