@@ -1,7 +1,7 @@
 defaultNamespace: kube-system
 
 helm:
-  repo: https://bitnami-labs.github.io/sealed-secrets
+  repo: https://bitnami.github.io/sealed-secrets
   chart: sealed-secrets
   version: 2.22.0 # controller v0.41.2
   releaseName: sealed-secrets-controller
