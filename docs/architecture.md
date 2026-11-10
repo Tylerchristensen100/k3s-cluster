@@ -25,7 +25,7 @@ Rancher (Fleet) ──► k3s single node
 
 ## Fleet setup
 
-[`fleet/gitrepo.yaml`](../fleet/gitrepo.yaml) defines the GitRepo (name `github`, matching the existing GitRepo in Rancher; paths `infrastructure` and `apps`). Bundle names derive from it (`github-apps-home-assistant`), and `apps/home-assistant/fleet.yaml` uses `dependsOn` so cert issuers sync first. If the GitRepo is renamed, update the `dependsOn` name.
+[`fleet/gitrepo.yaml`](../fleet/gitrepo.yaml) defines the GitRepo (name `github`, matching the existing GitRepo in Rancher; paths `infrastructure` and `apps`). **The GitRepo must set `paths: [infrastructure, apps]`**; with no paths Fleet scans the whole repo, lumps directories without a `fleet.yaml` into one root bundle named `github`, and would redeploy `fleet/gitrepo.yaml` itself. Every directory that should be its own bundle needs a `fleet.yaml`. Bundle names derive from the repo name (`github-apps-home-assistant`), and `apps/home-assistant/fleet.yaml` uses `dependsOn` so cert issuers sync first. If the GitRepo is renamed, update the `dependsOn` name.
 
 CI (`.github/workflows/validate.yaml`) runs kubeconform on every push/PR. Renovate (`renovate.json`) proposes image-tag bumps once the Renovate GitHub app is installed on the repo.
 

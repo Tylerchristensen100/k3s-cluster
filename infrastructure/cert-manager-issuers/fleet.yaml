@@ -1,0 +1,12 @@
+defaultNamespace: cert-manager
+
+# cert-manager rewrites some fields on the CA Certificate after creation; ignore duration so
+# Fleet doesn't report the bundle as Modified forever.
+diff:
+  comparePatches:
+    - apiVersion: cert-manager.io/v1
+      kind: Certificate
+      name: k3s-node-ca
+      namespace: cert-manager
+      operations:
+        - {"op": "remove", "path": "/spec/duration"}
