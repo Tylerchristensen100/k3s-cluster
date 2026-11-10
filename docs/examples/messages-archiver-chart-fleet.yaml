@@ -1,0 +1,38 @@
+# Copy this file to  charts/messages-archiver/fleet.yaml  in the PRIVATE repo
+# (Tylerchristensen100/MessagesForWeb_Archiver) and push to main.
+# Cluster-specific Fleet settings for the k3s-node cluster. Non-secret values only.
+# Secrets live (sealed) in the k3s-cluster repo: apps/messages-archiver/sealed-secret.yaml.
+defaultNamespace: messages-archiver
+
+# Wait for the namespace + sealed secret bundle in the k3s-cluster repo.
+dependsOn:
+  - name: github-apps-messages-archiver
+
+helm:
+  releaseName: messages-archiver
+  values:
+    # Image is built by hand on the node and imported into k3s containerd
+    # (see scripts/build-messages-archiver.sh in the k3s-cluster repo). Tag defaults to appVersion.
+    image:
+      pullPolicy: IfNotPresent
+    # One Secret holds UI_PASSWORD and the Drive client credentials.
+    existingSecret: messages-archiver
+    drive:
+      existingSecret: messages-archiver
+      # key names inside the sealed secret (chart defaults are the uppercase forms)
+      clientIdKey: drive_client_id
+      clientSecretKey: drive_client_secret
+    timezone: America/Denver
+    ingress:
+      enabled: true
+      className: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: k3s-node-ca-issuer
+      hosts:
+        - host: messages-archiver.k3s-node.home
+      tls:
+        - secretName: messages-archiver-tls
+          hosts:
+            - messages-archiver.k3s-node.home
+    networkPolicy:
+      enabled: true

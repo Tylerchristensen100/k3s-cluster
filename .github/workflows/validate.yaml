@@ -13,6 +13,13 @@ jobs:
       - name: Install kubeconform
         run: |
           curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz
+      - name: Reject plaintext Secrets
+        # Only SealedSecrets may be committed. A file merely *named* *.sealed.yaml is not enough.
+        run: |
+          if grep -rlE '^kind: Secret[[:space:]]*$' apps infrastructure fleet; then
+            echo "::error::Plaintext Secret manifest found above. Seal it with kubeseal / the Sealed Secrets web UI."
+            exit 1
+          fi
       - name: Validate manifests
         # CRD-backed kinds (cert-manager, Fleet, HelmChartConfig) have no bundled schema, so they are skipped.
         run: |

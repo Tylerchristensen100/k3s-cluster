@@ -1,0 +1,6 @@
+# Owns the namespace plus anything that must exist before the Helm chart (from the private repo)
+# is installed: sealed secrets for the UI password and the image pull secret.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: messages-archiver

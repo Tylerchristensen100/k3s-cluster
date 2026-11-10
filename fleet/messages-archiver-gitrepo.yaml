@@ -1,0 +1,24 @@
+# Bootstrap resource (like gitrepo.yaml): apply by hand, or recreate in Rancher > Continuous Delivery.
+# Deploys the Helm chart in the PRIVATE repo. Auth is a GitHub App; the secret `github-app-auth`
+# (github_app_id, github_app_installation_id, github_app_private_key) was created by hand in fleet-local.
+#
+# Resulting bundle name: messages-archiver-charts-messages-archiver
+apiVersion: fleet.cattle.io/v1alpha1
+kind: GitRepo
+metadata:
+  name: messages-archiver
+  namespace: fleet-local
+spec:
+  repo: https://github.com/Tylerchristensen100/MessagesForWeb_Archiver.git
+  branch: main
+  clientSecretName: github-app-auth
+  pollingInterval: 60s
+  paths:
+    - charts/messages-archiver
+  targets:
+    - clusterSelector:
+        matchExpressions:
+          - key: provider.cattle.io
+            operator: NotIn
+            values:
+              - harvester

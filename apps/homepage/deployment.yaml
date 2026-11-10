@@ -30,18 +30,28 @@ spec:
               mountPath: /app/config
             - name: logs # Homepage writes logs under the config dir; the ConfigMap mount is read-only
               mountPath: /app/config/logs
+          # Homepage rejects requests whose Host isn't in HOMEPAGE_ALLOWED_HOSTS, and the kubelet
+          # probes the pod IP, so send the allowed hostname explicitly.
           readinessProbe:
             httpGet:
               path: /api/healthcheck
               port: http
+              httpHeaders:
+                - name: Host
+                  value: homepage.k3s-node.home
             initialDelaySeconds: 10
             periodSeconds: 10
+            timeoutSeconds: 5
           livenessProbe:
             httpGet:
               path: /api/healthcheck
               port: http
+              httpHeaders:
+                - name: Host
+                  value: homepage.k3s-node.home
             initialDelaySeconds: 30
             periodSeconds: 30
+            timeoutSeconds: 5
           resources:
             requests:
               cpu: 50m

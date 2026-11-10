@@ -6,6 +6,8 @@ GitOps repo for a **single-node k3s cluster** managed through **Rancher** (Fleet
 
 - `infrastructure/<name>/` – cluster-wide config (e.g. cert-manager issuers).
 - `fleet/gitrepo.yaml` – Fleet GitRepo bootstrap, applied by hand once; not inside Fleet's scanned paths.
+- `scripts/` – helper scripts run by hand (e.g. build the private app's image on the node).
+- `docs/examples/` – reference copies of files that live in other repos.
 - `apps/<name>/` – one directory per application (each is its own Fleet bundle).
 - `docs/` – architecture, ingress, and per-app runbooks. Update docs when changing manifests.
 
