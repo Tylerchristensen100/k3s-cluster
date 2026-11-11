@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python scripts/lint.py)",
+      "Bash(shellcheck scripts/*.sh)",
+      "Bash(bash -n scripts/*.sh)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git check-ignore *)"
+    ],
+    "deny": [
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(**/.env)",
+      "Read(**/*kubeconfig*)",
+      "Read(**/k3s.yaml)",
+      "Read(~/.ssh/**)",
+      "Read(~/.kube/**)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-secrets.py\"",
+            "statusMessage": "Checking for plaintext secrets..."
+          }
+        ]
+      }
+    ]
+  }
+}

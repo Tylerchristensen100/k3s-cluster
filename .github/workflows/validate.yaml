@@ -6,6 +6,22 @@ on:
     branches: [main]
 
 jobs:
+  # Repo conventions (bundles, pinned images, TLS ingress, sealed-only secrets, doc links...).
+  # Same command you can run locally: python scripts/lint.py
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml==6.0.2
+      - name: Repo conventions
+        run: python scripts/lint.py
+      - name: ShellCheck scripts
+        run: shellcheck scripts/*.sh
+
+  # Schema validation of built-in Kubernetes kinds.
   kubeconform:
     runs-on: ubuntu-latest
     steps:
@@ -17,11 +33,11 @@ jobs:
         # Only SealedSecrets may be committed. A file merely *named* *.sealed.yaml is not enough.
         run: |
           if grep -rlE '^kind: Secret[[:space:]]*$' apps infrastructure fleet; then
-            echo "::error::Plaintext Secret manifest found above. Seal it with kubeseal / the Sealed Secrets web UI."
+            echo "::error::Plaintext Secret manifest found above. Seal it with scripts/seal.sh or the Sealed Secrets web UI."
             exit 1
           fi
       - name: Validate manifests
-        # CRD-backed kinds (cert-manager, Fleet, HelmChartConfig) have no bundled schema, so they are skipped.
+        # CRD-backed kinds (cert-manager, Fleet, HelmChartConfig, SealedSecret) have no bundled schema, so they are skipped.
         run: |
           find apps infrastructure fleet -name '*.yaml' ! -name fleet.yaml -print0 \
             | xargs -0 ./kubeconform -strict -summary -ignore-missing-schemas
