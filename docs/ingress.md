@@ -16,7 +16,7 @@ Each app gets an `Ingress` with a `host` rule:
 spec:
   ingressClassName: traefik
   rules:
-    - host: ha.example.com
+    - host: home-assistant.k3s-node.home
 ```
 
 ## DNS

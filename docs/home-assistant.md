@@ -27,6 +27,17 @@ kubectl -n home-assistant rollout restart deploy/home-assistant
 
 Afterwards the setting is visible and editable under Settings → Network. Then open `https://home-assistant.k3s-node.home` and complete onboarding.
 
+**Don't also add an `http:` block to `configuration.yaml`.** It is ignored after the one-time migration and makes Home Assistant raise the repair "HTTP YAML configuration is ignored after migration" (it stops working in 2027.2.0). If you already did, remove the block:
+
+```sh
+kubectl -n home-assistant exec deploy/home-assistant -- python3 -c '
+p="/config/configuration.yaml"
+s=open(p).read()
+i=s.index("\nhttp:")
+open(p,"w").write(s[:i].rstrip()+"\n")'
+kubectl -n home-assistant rollout restart deploy/home-assistant
+```
+
 ## Device discovery
 
 Pod networking blocks mDNS/SSDP, so auto-discovery of LAN devices won't work by default. Options: add devices by IP, or uncomment `hostNetwork: true` and `dnsPolicy` in `deployment.yaml` (the pod then shares the node's network). USB dongles (Zigbee/Z-Wave) additionally need a `hostPath` device mount and `securityContext.privileged` or a device plugin; not configured yet.

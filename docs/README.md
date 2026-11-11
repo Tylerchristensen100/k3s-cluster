@@ -2,12 +2,14 @@
 
 | Doc | Purpose |
 | --- | --- |
-| [architecture.md](architecture.md) | How the cluster, Rancher/Fleet, and this repo fit together |
-| [ingress.md](ingress.md) | Subdomain routing with Traefik, DNS, and TLS |
-| [home-assistant.md](home-assistant.md) | Deploying and operating Home Assistant |
-| [secrets.md](secrets.md) | Secret-handling options and policy |
+| [architecture.md](architecture.md) | How the cluster, Rancher/Fleet, and this repo fit together; adding an app |
+| [ingress.md](ingress.md) | Subdomain routing with Traefik, DNS, and TLS (internal CA) |
+| [secrets.md](secrets.md) | Sealed Secrets: how to seal, what exists, what is outside Git |
+| [checks.md](checks.md) | What is validated, in CI and live, and how to run it |
+| [runbook.md](runbook.md) | Troubleshooting, CA key backup, PowerShell gotchas |
+| [bootstrap.md](bootstrap.md) | Rebuilding the cluster from scratch, in order |
 | [node-setup.md](node-setup.md) | Node/network tasks outside Git (DHCP, updates, SMART, UPS, access) |
-| [runbook.md](runbook.md) | Troubleshooting, CA key backup, first-run steps |
+| [home-assistant.md](home-assistant.md) | Deploying and operating Home Assistant |
 | [messages-archiver.md](messages-archiver.md) | Private app: build on node, sealed secrets, Fleet + GitHub App |
 
 ## Apps
@@ -20,3 +22,5 @@
 | Uptime Kuma (monitoring) | `https://uptime-kuma.k3s-node.home` | `apps/uptime-kuma` |
 | Messages Archiver | `https://messages-archiver.k3s-node.home` | `apps/messages-archiver` + private repo chart |
 | Sealed Secrets web UI (seal-only) | `https://sealed-secrets-web.k3s-node.home` | `apps/sealed-secrets-web` |
+
+Infrastructure bundles (`infrastructure/`): `cert-manager-issuers`, `traefik`, `sealed-secrets`.

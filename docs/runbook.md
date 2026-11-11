@@ -28,6 +28,29 @@ kubectl -n cert-manager get secret k3s-node-ca-secret -o jsonpath='{.data.ca\.cr
 | `WaitingForDependency` forever | The `dependsOn` bundle name is wrong. Names are `<GitRepo name>-<path with dashes>`; the GitRepo is `github`. |
 | Everything lumped into one bundle named `github` | GitRepo `paths` is empty or a directory has no `fleet.yaml`. Set `paths: [infrastructure, apps]` and give each bundle dir a `fleet.yaml`. |
 | A duplicate GitRepo keeps coming back | `fleet/gitrepo.yaml` was inside a scanned path. It must stay outside `paths`. |
+| Private-repo chart fails with chart defaults (e.g. "Set uiPassword") | The `messages-archiver` GitRepo was created **before** `charts/messages-archiver/fleet.yaml` was pushed to the private repo. Push the file; Fleet re-polls every 60s, no need to recreate the GitRepo. |
+| `namespace.v1 <name> is not owned by us` / Namespace "missing" | Two bundles deploy into the same namespace (the app bundle that owns `namespace.yaml` and a Helm-chart bundle). The workload keeps running; only Fleet's status is red. **Never fix it by deleting `namespace.yaml`**: Helm would delete the Namespace and with it the PVC (your data). If you ever must remove it, first add the annotation `helm.sh/resource-policy: keep` to it and let Fleet sync. Least destructive fix (untested): give the live namespace Helm ownership: `kubectl annotate ns <ns> meta.helm.sh/release-name=github-apps-<ns> meta.helm.sh/release-namespace=<ns> --overwrite && kubectl label ns <ns> app.kubernetes.io/managed-by=Helm --overwrite`, then Force Update. Verify with `scripts/check-cluster.sh`. |
+| `Error getting keypair` / SealedSecret not synced | The sealed file was sealed with a different cluster's cert, or for a different name/namespace (strict scope). Re-export `certs/sealed-secrets-pub.pem` and re-seal. |
+| GitRepo auth error for the private repo | Check secret `github-app-auth` in `fleet-local` has `github_app_id`, `github_app_installation_id`, `github_app_private_key` (`kubectl -n fleet-local describe secret github-app-auth` shows names and sizes only), that the App is installed on that repo, and that Fleet is >= 0.14. |
+
+## Workload problems
+
+| Symptom | Cause / fix |
+| --- | --- |
+| `ImagePullBackOff` for `messages-archiver:<tag>` | The image was built (podman) but not imported into k3s containerd, which needs sudo: `podman save docker.io/library/messages-archiver:<tag> \| sudo k3s ctr images import -`, verify with `sudo k3s ctr images ls \| grep messages-archiver`, then delete the pod. `scripts/build-messages-archiver.sh` does all of it. |
+| Homepage crash-loops, log says `Host validation failed for: <pod ip>:3000` | Homepage rejects Host headers not in `HOMEPAGE_ALLOWED_HOSTS`, and kubelet probes use the pod IP. The probes in `apps/homepage/deployment.yaml` send `Host: homepage.k3s-node.home`; any new probe must too. |
+| Pod `CreateContainerConfigError` | A referenced Secret/ConfigMap key doesn't exist. `kubectl describe pod` names it. For sealed secrets, check key names match what the chart expects (the messages-archiver values map `drive_client_id`/`drive_client_secret`). |
+| A stray `rancher` Deployment in namespace `default` | Not from this repo: an old, broken Rancher install (missing `bootstrap-secret`, host `k3s-node.home.arpa`). The working Rancher is in `cattle-system`. Remove it if unwanted (`helm uninstall rancher -n default` if it is a Helm release), or silence it with `SKIP_NS='^(default)$'` in the health check. |
+
+## Windows / PowerShell gotchas
+
+You run commands from a Windows PC against a Linux node:
+
+- **Bash heredocs (`<<'EOF'`) don't parse in PowerShell.** Run multi-line shell blocks on the node (interactive `ssh k3s-node@192.168.0.246` or Terminus), or use `printf`.
+- **Windows PowerShell 5.1 strips inner double quotes** when passing arguments to `ssh`, so `"$(cat file)"` arrives unquoted and word-splits. Prefer `--from-file`, or run the command on the node.
+- **`<` redirection isn't supported**; pipe instead: `Get-Content script.sh -Raw | ssh k3s-node@192.168.0.246 'bash -s'`.
+- **Never paste placeholders** like `<APP_ID>`: the node's shell treats `<` as a redirect.
+- Scripts must have LF line endings (`.gitattributes` enforces this).
 | Resource shows `Modified` forever | The controller normalises a field. Use the normalised form, or add `diff.comparePatches` in that bundle's `fleet.yaml` (see the issuers bundle). |
 
 ## Traefik redirect not working

@@ -1,7 +1,7 @@
 # Copy this file to  charts/messages-archiver/fleet.yaml  in the PRIVATE repo
 # (Tylerchristensen100/MessagesForWeb_Archiver) and push to main.
 # Cluster-specific Fleet settings for the k3s-node cluster. Non-secret values only.
-# Secrets live (sealed) in the k3s-cluster repo: apps/messages-archiver/sealed-secret.yaml.
+# Secrets live (sealed) in the k3s-cluster repo: apps/messages-archiver/secrets.sealed.yaml.
 defaultNamespace: messages-archiver
 
 # Wait for the namespace + sealed secret bundle in the k3s-cluster repo.

@@ -1,81 +1,76 @@
 # Messages Archiver
 
-Private app from `Tylerchristensen100/MessagesForWeb_Archiver` (Go, Helm chart in `charts/messages-archiver`). Served at `https://messages-archiver.k3s-node.home`.
+Private app from `Tylerchristensen100/MessagesForWeb_Archiver` (Go, Helm chart in `charts/messages-archiver`): archives your texts via Google Messages for web. Served at `https://messages-archiver.k3s-node.home` (HTTP Basic auth: any username, the `UI_PASSWORD`).
 
 ## How it fits together
 
 | Piece | Where |
 | --- | --- |
 | Helm chart + `fleet.yaml` with cluster values | private repo, deployed by the `messages-archiver` GitRepo ([fleet/messages-archiver-gitrepo.yaml](../fleet/messages-archiver-gitrepo.yaml)), authenticated with the GitHub App secret `github-app-auth` |
-| Namespace, quotas, **sealed secrets** | this repo, `apps/messages-archiver/` (bundle `github-apps-messages-archiver`) |
+| Namespace, quotas, **sealed secret** | this repo, `apps/messages-archiver/` (bundle `github-apps-messages-archiver`) |
 | Container image | built **by hand on the node**, imported into k3s containerd (no registry) |
 
-The chart's bundle depends on the namespace/secrets bundle, so the Secret exists before the pod starts.
+Bundle names: `github-apps-messages-archiver` (this repo) and `messages-archiver-charts-messages-archiver` (private repo). The chart bundle `dependsOn` the first, so the Secret exists before the pod starts. Overview: [architecture.md](architecture.md#the-private-app).
 
-## One-time setup
+## One-time setup (in this order)
 
-### 1. Add the cluster values to the private repo
-
-Copy [examples/messages-archiver-chart-fleet.yaml](examples/messages-archiver-chart-fleet.yaml) to `charts/messages-archiver/fleet.yaml` in the private repo and push to `main`.
-
-### 2. Install a build tool on the node
-
-Neither docker nor podman is installed. Podman needs no daemon:
+### 1. Install a build tool on the node
 
 ```sh
 sudo apt install -y podman
 ```
 
-### 3. Let the node clone the private repo (read-only deploy key)
+### 2. Let the node clone the private repo (read-only deploy key)
 
-Run these **on the node** (an interactive `ssh k3s-node@192.168.0.246` session or Terminus), not in your PC's PowerShell. They are bash commands, and PowerShell can't parse them.
+Run these **on the node** (an interactive `ssh k3s-node@192.168.0.246` session or Terminus), not in your PC's PowerShell ([why](runbook.md#windows--powershell-gotchas)).
 
 ```sh
 ssh-keygen -t ed25519 -f ~/.ssh/messages-archiver-deploy -N "" -C "k3s-node deploy key"
-printf 'Host github.com\n  IdentityFile ~/.ssh/messages-archiver-deploy\n  IdentitiesOnly yes\n' >> ~/.ssh/config
+printf 'Host github.com\n  IdentityFile ~/.ssh/messages-archiver-deploy\n  IdentitiesOnly yes\n' > ~/.ssh/config
 chmod 600 ~/.ssh/config
-cat ~/.ssh/messages-archiver-deploy.pub      # add to the private repo: Settings > Deploy keys (read-only)
-ssh -T git@github.com                        # expect "successfully authenticated"
+cat ~/.ssh/messages-archiver-deploy.pub
 ```
 
-### 4. Seal the secrets
+Add the printed **public** key to the private repo (Settings -> Deploy keys, leave write access unchecked), or from PowerShell:
 
-All of them go in **one** Secret named `messages-archiver` in namespace `messages-archiver`. The chart reads `UI_PASSWORD` and the Drive keys from it; other values can be added via `extraEnv` using `secretKeyRef`.
-
-Use the Sealed Secrets web UI (`https://sealed-secrets-web.k3s-node.home`) or `kubeseal --cert certs/sealed-secrets-pub.pem`. Input, using real values (do not save this file, do not commit it):
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: messages-archiver
-  namespace: messages-archiver
-type: Opaque
-stringData:
-  UI_PASSWORD: <long password>
-  DRIVE_CLIENT_ID: <...apps.googleusercontent.com>
-  DRIVE_CLIENT_SECRET: <...>
-  # add any other keys here
+```powershell
+ssh k3s-node@192.168.0.246 'cat ~/.ssh/messages-archiver-deploy.pub' | gh repo deploy-key add - --repo Tylerchristensen100/MessagesForWeb_Archiver --title "k3s-node (read-only)"
 ```
 
-Save the sealed output as `apps/messages-archiver/sealed-secret.yaml` and commit it. The name and namespace are bound into the ciphertext, so it only decrypts as exactly this Secret.
+Verify on the node: `ssh -T git@github.com` should say "successfully authenticated".
 
-### 5. Build the first image, then apply the GitRepo
+### 3. Seal the secrets
 
-```sh
-ssh -t k3s-node@192.168.0.246 'bash -s' < scripts/build-messages-archiver.sh
-kubectl apply -f fleet/messages-archiver-gitrepo.yaml     # or recreate it in Rancher
+One Secret named `messages-archiver` in namespace `messages-archiver`, sealed as in [secrets.md](secrets.md) and saved as `apps/messages-archiver/secrets.sealed.yaml`. Keys: `UI_PASSWORD` (required, the app refuses to start without it), `drive_client_id`, `drive_client_secret`. The lowercase Drive key names are mapped in the chart values (step 4). Anything else can be added via `extraEnv` with a `secretKeyRef`.
+
+### 4. Put the cluster values in the private repo
+
+Copy [examples/messages-archiver-chart-fleet.yaml](examples/messages-archiver-chart-fleet.yaml) to `charts/messages-archiver/fleet.yaml` in the private repo and push to `main`. **Do this before creating the GitRepo (step 6)**, otherwise the chart renders with defaults and fails ("Set uiPassword").
+
+### 5. Build and import the image
+
+From PowerShell on your PC:
+
+```powershell
+Get-Content scripts\build-messages-archiver.sh -Raw | ssh -t k3s-node@192.168.0.246 'bash -s'
 ```
 
-Bundle name: `messages-archiver-charts-messages-archiver`. Then open the UI, log in (any username, your `UI_PASSWORD`), pair the phone, and **Run now**.
+or copy the script to the node and run it there; sudo prompts for a password for the containerd import. It clones/pulls the private repo, builds `docker.io/library/messages-archiver:<appVersion>` with podman, imports it, and restarts the deployment. Verify: `sudo k3s ctr images ls | grep messages-archiver`.
+
+### 6. Create the GitRepo
+
+In Rancher: Continuous Delivery -> workspace **fleet-local** -> Git Repos -> Create -> Edit as YAML, paste [fleet/messages-archiver-gitrepo.yaml](../fleet/messages-archiver-gitrepo.yaml). Or `kubectl apply -f` it on the node. Then open the URL, pair the phone, and **Run now**.
+
+The GitHub App secret (`github-app-auth` in `fleet-local`, fields `github_app_id`, `github_app_installation_id`, `github_app_private_key`) is created by hand and not stored in Git.
 
 ## Updating the app
 
-Push code to the private repo, then re-run [scripts/build-messages-archiver.sh](../scripts/build-messages-archiver.sh) on the node. It pulls, builds, imports the image and restarts the deployment. The tag is the chart's `appVersion`, so the same tag is overwritten in place. Chart changes deploy through Fleet when pushed.
+Push code to the private repo, then re-run the build script on the node (step 5). It overwrites the same tag in containerd and restarts the pod. Chart changes deploy through Fleet when pushed. To change the version, bump `appVersion` in the chart.
 
-## Caveats
+## Operations and caveats
 
-- `session.json` on the volume holds your Google account credentials and all messages. Treat the volume as sensitive.
+- `session.json` on the volume holds your Google account credentials and every message. Treat the volume as sensitive.
 - **No backups are configured.** A disk failure loses the archive and the pairing; this is the main risk for this app.
-- If the pod shows `ImagePullBackOff` / `ErrImageNeverPull`, the image isn't imported yet. Check with `sudo k3s ctr images ls | grep messages-archiver` (expect `docker.io/library/messages-archiver:<tag>`).
-- Egress is intentionally open (the app talks to Google).
+- Egress is intentionally open (the app talks to Google); ingress is limited to Traefik and same-namespace pods by the chart's NetworkPolicy.
+- `ImagePullBackOff`, `CreateContainerConfigError` and the red "namespace not owned" Fleet status are explained in the [runbook](runbook.md#workload-problems). The namespace one does not affect the running app.
+- Health URL (no auth): `/healthz`.
