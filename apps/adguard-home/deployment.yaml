@@ -17,6 +17,10 @@ spec:
       labels:
         app: adguard-home
     spec:
+      automountServiceAccountToken: false # does not use the Kubernetes API
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: adguard-home
           image: adguard/adguardhome:v0.107.57

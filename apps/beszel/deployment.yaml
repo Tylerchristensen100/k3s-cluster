@@ -17,6 +17,10 @@ spec:
       labels:
         app: beszel
     spec:
+      automountServiceAccountToken: false # does not use the Kubernetes API
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: beszel
           image: henrygd/beszel:0.21.1

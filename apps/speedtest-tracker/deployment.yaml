@@ -17,6 +17,10 @@ spec:
       labels:
         app: speedtest-tracker
     spec:
+      automountServiceAccountToken: false # does not use the Kubernetes API
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: speedtest-tracker
           image: lscr.io/linuxserver/speedtest-tracker:1.15.1
