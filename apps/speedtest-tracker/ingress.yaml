@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: speedtest-tracker
+  namespace: speedtest-tracker
+  annotations:
+    cert-manager.io/cluster-issuer: k3s-node-ca-issuer
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - speedtest-tracker.k3s-node.home
+      secretName: speedtest-tracker-tls
+  rules:
+    - host: speedtest-tracker.k3s-node.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: speedtest-tracker
+                port:
+                  name: http

@@ -3,7 +3,11 @@
 | Doc | Purpose |
 | --- | --- |
 | [architecture.md](architecture.md) | How the cluster, Rancher/Fleet, and this repo fit together; adding an app |
-| [adguard-home.md](adguard-home.md) | AdGuard Home: first-run setup, router DNS, rewrites |
+| [adguard-home.md](adguard-home.md) | Beszel (metrics) | `https://beszel.k3s-node.home` | `apps/beszel` |
+| Speedtest Tracker | `https://speedtest-tracker.k3s-node.home` | `apps/speedtest-tracker` |
+| AdGuard Home: first-run setup, router DNS, rewrites |
+| [beszel.md](beszel.md) | Beszel hub and node agent setup |
+| [speedtest-tracker.md](speedtest-tracker.md) | Speedtest Tracker: APP_KEY secret, login, schedule |
 | [ingress.md](ingress.md) | Subdomain routing with Traefik, DNS, and TLS (internal CA) |
 | [secrets.md](secrets.md) | Sealed Secrets: how to seal, what exists, what is outside Git |
 | [checks.md](checks.md) | What is validated, in CI and live, and how to run it |
