@@ -26,6 +26,18 @@ data:
             href: https://uptime-kuma.k3s-node.home
             description: Service monitoring
             icon: uptime-kuma.svg
+        - Beszel:
+            href: https://beszel.k3s-node.home
+            description: Node and container metrics
+            icon: beszel.svg
+        - Speedtest Tracker:
+            href: https://speedtest-tracker.k3s-node.home
+            description: Internet speed history
+            icon: speedtest-tracker.svg
+        - AdGuard Home:
+            href: https://adguard-home.k3s-node.home
+            description: DNS and ad blocking
+            icon: adguard-home.svg
         - Sealed Secrets:
             href: https://sealed-secrets-web.k3s-node.home
             description: Encrypt secrets for git

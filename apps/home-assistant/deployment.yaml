@@ -29,7 +29,7 @@ spec:
               containerPort: 8123
           env:
             - name: TZ
-              value: America/Denver # TODO: set your timezone
+              value: America/Denver
           volumeMounts:
             - name: config
               mountPath: /config

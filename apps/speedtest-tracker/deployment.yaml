@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: speedtest-tracker
+  namespace: speedtest-tracker
+  labels:
+    app: speedtest-tracker
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # SQLite on a RWO volume
+  selector:
+    matchLabels:
+      app: speedtest-tracker
+  template:
+    metadata:
+      labels:
+        app: speedtest-tracker
+    spec:
+      automountServiceAccountToken: false # does not use the Kubernetes API
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: speedtest-tracker
+          image: lscr.io/linuxserver/speedtest-tracker:1.15.1
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: America/Denver
+            - name: DB_CONNECTION
+              value: sqlite
+            - name: APP_URL
+              value: https://speedtest-tracker.k3s-node.home
+            - name: ASSET_URL
+              value: https://speedtest-tracker.k3s-node.home
+            # Every 6 hours (cron, in TZ above). Each run uses real bandwidth.
+            - name: SPEEDTEST_SCHEDULE
+              value: "0 */6 * * *"
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: speedtest-tracker
+                  key: APP_KEY
+          ports:
+            - name: http
+              containerPort: 80
+          volumeMounts:
+            - name: data
+              mountPath: /config
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 90
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 192Mi
+            limits:
+              cpu: 1
+              memory: 512Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: speedtest-tracker-data

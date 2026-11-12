@@ -43,4 +43,3 @@ GitOps repo for a **single-node k3s cluster** managed through **Rancher** (Fleet
 
 - `github-apps-messages-archiver` is red in Fleet ("namespace not owned by us"); the app runs. See runbook.
 - A stray broken `rancher` Deployment in namespace `default` (not from this repo).
-- Timezone in `apps/home-assistant/deployment.yaml` is a guess.

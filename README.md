@@ -19,6 +19,9 @@ GitOps config for a single-node k3s cluster (`k3s-node`, Rancher + Fleet). Pushi
 | Home Assistant | `https://home-assistant.k3s-node.home` |
 | Homepage (dashboard) | `https://homepage.k3s-node.home` |
 | Uptime Kuma (monitoring) | `https://uptime-kuma.k3s-node.home` |
+| Beszel (metrics) | `https://beszel.k3s-node.home` |
+| Speedtest Tracker | `https://speedtest-tracker.k3s-node.home` |
+| AdGuard Home (DNS + ad blocking) | `https://adguard-home.k3s-node.home` |
 | Sealed Secrets web UI | `https://sealed-secrets-web.k3s-node.home` |
 | Messages Archiver (private app) | `https://messages-archiver.k3s-node.home` |
 

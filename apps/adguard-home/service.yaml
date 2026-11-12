@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: adguard-home
+  namespace: adguard-home
+spec:
+  selector:
+    app: adguard-home
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+# DNS for the LAN: k3s ServiceLB publishes port 53 on the node's IP.
+# Local keeps real client IPs in the AdGuard query log.
+apiVersion: v1
+kind: Service
+metadata:
+  name: adguard-home-dns
+  namespace: adguard-home
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app: adguard-home
+  ports:
+    - name: dns-udp
+      port: 53
+      protocol: UDP
+      targetPort: dns-udp
+    - name: dns-tcp
+      port: 53
+      protocol: TCP
+      targetPort: dns-tcp
