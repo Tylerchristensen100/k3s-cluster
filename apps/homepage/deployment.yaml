@@ -23,6 +23,8 @@ spec:
             - name: http
               containerPort: 3000
           env:
+            - name: TZ
+              value: America/Denver
             - name: HOMEPAGE_ALLOWED_HOSTS
               value: homepage.k3s-node.home
           volumeMounts:

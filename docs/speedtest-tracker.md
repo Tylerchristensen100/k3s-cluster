@@ -18,6 +18,6 @@ Paste the output into the sealed-secrets web UI; do not save it to disk. Until t
 
 ## First run
 
-Default login is `admin@example.com` / `password`. Change both immediately (profile page). The schedule is `SPEEDTEST_SCHEDULE` in `deployment.yaml` (default every 6 hours). Each test uses real bandwidth, so watch the frequency on a metered connection. The timezone is a guess; set `TZ`.
+Default login is `admin@example.com` / `password`. Change both immediately (profile page). The schedule is `SPEEDTEST_SCHEDULE` in `deployment.yaml` (default every 6 hours). Each test uses real bandwidth, so watch the frequency on a metered connection. Timezone is `America/Denver`.
 
 Data (SQLite, history) is on `local-path` with **no backups**.

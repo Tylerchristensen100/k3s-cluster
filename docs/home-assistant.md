@@ -5,7 +5,7 @@ Manifests: [`apps/home-assistant/`](../apps/home-assistant). Namespace `home-ass
 ## Before first deploy
 
 1. Ensure the UniFi wildcard DNS record `*.k3s-node.home` points at the node ([ingress.md](ingress.md)).
-2. Set `TZ` in `deployment.yaml`.
+2. `TZ` in `deployment.yaml` is `America/Denver`.
 3. Push to `main`; Fleet applies it.
 
 ## Required: trust the reverse proxy

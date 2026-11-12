@@ -20,6 +20,9 @@ spec:
       containers:
         - name: uptime-kuma
           image: louislam/uptime-kuma:2.5.9
+          env:
+            - name: TZ
+              value: America/Denver
           ports:
             - name: http
               containerPort: 3001

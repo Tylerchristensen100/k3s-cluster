@@ -20,6 +20,9 @@ spec:
       containers:
         - name: adguard-home
           image: adguard/adguardhome:v0.107.57
+          env:
+            - name: TZ
+              value: America/Denver
           ports:
             - name: http
               containerPort: 3000
