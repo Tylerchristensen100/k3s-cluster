@@ -23,7 +23,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: adguard-home
-          image: adguard/adguardhome:v0.107.57
+          image: adguard/adguardhome:v0.107.80
           env:
             - name: TZ
               value: America/Denver
